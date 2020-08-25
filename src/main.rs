@@ -1,3 +1,4 @@
+mod ray;
 mod vec3;
 
 use std::fs::File;
@@ -13,7 +14,8 @@ fn main() -> std::io::Result<()> {
     for row in 0..HEIGHT {
         eprintln!("Lines remaining {}", HEIGHT-row);
         for col in 0..WIDTH {
-            out.write(format!("{} {} {}\n", row%255, col%255, 255).as_bytes());
+            let v = vec3::Vec3::new(row as f64 / HEIGHT as f64, col as f64 / WIDTH as f64, 0.25);
+            out.write(format!("{}\n", v).as_bytes());
         }
     }
     Ok(())

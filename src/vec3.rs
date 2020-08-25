@@ -2,8 +2,8 @@ use std::{ops, fmt};
 use std::ops::{Add, Mul};
 use std::fmt::Formatter;
 
-#[derive(PartialEq, Debug)]
-struct Vec3 {
+#[derive(PartialOrd, PartialEq, Debug)]
+pub struct Vec3 {
     x: f64,
     y: f64,
     z: f64,
@@ -56,7 +56,7 @@ impl ops::Div<f64> for Vec3 {
 
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {} {}", self.x, self.y, self.z)
+        write!(f, "{} {} {}", (255.999 * self.x) as i32, (255.999 * self.y) as i32, (255.999 * self.z) as i32)
     }
 }
 
