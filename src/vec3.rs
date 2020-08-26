@@ -24,6 +24,14 @@ impl Vec3 {
     }
 }
 
+pub fn dot(u: Vec3, v: Vec3) -> f64 {
+    u.x * v.x + u.y * v.y + u.z * v.z
+}
+
+pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
+    Vec3::new(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x)
+}
+
 impl_op_ex!(+ |a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x + b.x, a.y + b.y, a.z + b.z)});
 impl_op_ex!(- |a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x - b.x, a.y - b.y, a.z - b.z)});
 impl_op_ex!(* |a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x * b.x, a.y * b.y, a.z * b.z)});
@@ -42,7 +50,7 @@ impl fmt::Display for Vec3 {
 
 #[cfg(test)]
 mod tests {
-    use crate::vec3::Vec3;
+    use super::*;
 
     #[test]
     fn addition() {
@@ -52,5 +60,10 @@ mod tests {
     #[test]
     fn addition_floats() {
         assert_eq!(Vec3::new(1.0, 2.0, 3.0) / 2.0, Vec3::new(0.5, 1.0, 1.5));
+    }
+
+    #[test]
+    fn test_cross() {
+        assert_eq!(cross(Vec3::new(2.0, 3.0, 4.0), Vec3::new(5.0, 6.0, 7.0)), Vec3::new(-3.0, 6.0, -3.0));
     }
 }
