@@ -1,4 +1,4 @@
-use std::{ops, fmt};
+use std::fmt;
 use std::fmt::Formatter;
 
 #[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
@@ -49,6 +49,7 @@ mod tests {
         assert_eq!(&Vec3::new(1.0, 2.0, 3.0) + &Vec3::new(4.0, 5.0, 6.0), Vec3::new(5.0, 7.0, 9.0));
     }
 
+    #[test]
     fn addition_floats() {
         assert_eq!(Vec3::new(1.0, 2.0, 3.0) / 2.0, Vec3::new(0.5, 1.0, 1.5));
     }

@@ -5,7 +5,7 @@ mod vec3;
 use vec3::Vec3;
 use ray::Ray;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Write, BufWriter};
 
 fn ray_color(r: &Ray) -> Vec3 {
     let t = 0.5 * (r.direction.unit().y + 1.0);
@@ -25,18 +25,18 @@ fn main() -> std::io::Result<()> {
     let origin = Vec3::new(0.0,0.0,0.0);
     let horizontal = Vec3::new(viewport_height, 0.0, 0.0);
     let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner = &origin - &horizontal / 2.0 - &vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
+    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
 
-    let mut out = File::create("img.ppm")?;
-    out.write(format!("P3\n{} {}\n255\n",WIDTH, HEIGHT).as_bytes())?;
+    let mut out = BufWriter::new(File::create("img.ppm")?);
+    out.write_all(format!("P3\n{} {}\n255\n",WIDTH, HEIGHT).as_bytes())?;
 
     for row in 0..HEIGHT {
         eprintln!("Lines remaining {}", HEIGHT-row);
         for col in 0..WIDTH {
             let u = row as f64 / (HEIGHT - 1) as f64;
             let v = col as f64 / (WIDTH - 1) as f64;
-            let r = Ray::new(origin, &lower_left_corner + u*&horizontal + v*&vertical - &origin);
-            out.write(format!("{}\n", ray_color(&r)).as_bytes());
+            let r = Ray::new(origin, lower_left_corner + u*horizontal + v*vertical - origin);
+            out.write_all(format!("{}\n", ray_color(&r)).as_bytes())?;
         }
     }
     Ok(())
