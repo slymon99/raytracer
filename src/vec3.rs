@@ -1,5 +1,6 @@
 use std::fmt;
 use std::fmt::Formatter;
+use image::{Rgba, Rgb};
 
 #[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -21,6 +22,9 @@ impl Vec3 {
     }
     pub fn unit(&self) -> Vec3 {
         self / self.length()
+    }
+    pub fn to_pixel(&self) -> Rgb<u8> {
+        Rgb::from([(255.999 * self.x) as u8, (255.999 * self.y) as u8, (255.999 * self.z) as u8])
     }
 }
 

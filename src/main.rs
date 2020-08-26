@@ -6,6 +6,7 @@ use vec3::{Vec3, dot, cross};
 use ray::Ray;
 use std::fs::File;
 use std::io::{Write, BufWriter};
+use image::{DynamicImage, GenericImage, Rgba, Rgb};
 
 fn ray_color(r: &Ray) -> Vec3 {
     let sphere_collision = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r);
@@ -48,17 +49,16 @@ fn main() -> std::io::Result<()> {
     let vertical = Vec3::new(0.0, viewport_height, 0.0);
     let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
 
-    let mut out = BufWriter::new(File::create("img.ppm")?);
-    out.write_all(format!("P3\n{} {}\n255\n",WIDTH, HEIGHT).as_bytes())?;
-
+    let mut out = image::ImageBuffer::new(WIDTH, HEIGHT);
     for row in 0..HEIGHT {
         eprintln!("Lines remaining {}", HEIGHT-row);
         for col in 0..WIDTH {
             let v = row as f64 / (HEIGHT - 1) as f64;
             let u = col as f64 / (WIDTH - 1) as f64;
             let r = Ray::new(origin, lower_left_corner + u*horizontal + v*vertical - origin);
-            out.write_all(format!("{}\n", ray_color(&r)).as_bytes())?;
+            out.put_pixel(col, row, ray_color(&r).to_pixel());
         }
     }
+    out.save("res.png");
     Ok(())
 }

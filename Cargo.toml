@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 auto_ops = "0.1.0"
+image = "0.23.8"
