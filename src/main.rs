@@ -8,21 +8,29 @@ use std::fs::File;
 use std::io::{Write, BufWriter};
 
 fn ray_color(r: &Ray) -> Vec3 {
-    if hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
-       return Vec3::new(1.0, 0.0, 0.0)
+    let sphere_collision = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r);
+    match sphere_collision {
+        Some(discriminant) => {
+            let n = (r.at(discriminant) - Vec3::new(0.0, 0.0, -1.0)).unit();
+            0.5 * (n + 1.0)
+        },
+        None => {
+            let t = 0.5 * (r.direction.unit().y + 1.0);
+            Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
+        }
     }
-
-    let t = 0.5 * (r.direction.unit().y + 1.0);
-    Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
 }
 
-fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> bool {
+fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> Option<f64> {
     let oc = r.origin - center;
     let a = dot(r.direction, r.direction);
     let b = 2.0 * dot(oc, r.direction);
     let c = dot(oc, oc) - radius * radius;
     let discriminant = b*b - 4.0*a*c;
-    discriminant > 0.0
+    if discriminant < 0.0 {
+        return None
+    }
+    Some(-b - discriminant.sqrt() / (2.0 * a))
 }
 
 fn main() -> std::io::Result<()> {
