@@ -1,6 +1,6 @@
 use std::fmt;
 use std::fmt::Formatter;
-use image::{Rgba, Rgb};
+use image::Rgb;
 
 #[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
 pub struct Vec3 {

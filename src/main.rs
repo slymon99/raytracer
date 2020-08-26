@@ -4,9 +4,6 @@ mod vec3;
 #[macro_use] extern crate auto_ops;
 use vec3::{Vec3, dot, cross};
 use ray::Ray;
-use std::fs::File;
-use std::io::{Write, BufWriter};
-use image::{DynamicImage, GenericImage, Rgba, Rgb};
 
 fn ray_color(r: &Ray) -> Vec3 {
     let sphere_collision = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r);
