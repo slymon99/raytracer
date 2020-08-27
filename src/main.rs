@@ -1,5 +1,6 @@
 mod ray;
 mod vec3;
+mod hittable;
 
 #[macro_use] extern crate auto_ops;
 use vec3::{Vec3, dot, cross};
