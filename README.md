@@ -1,0 +1,3 @@
+# raytracer
+
+![result](res.png)
