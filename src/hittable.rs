@@ -44,7 +44,11 @@ impl Hittable for Sphere {
             for difference in &[-root, root] {
                 let intersect = (-half_b + difference) / a;
                 if (t_min..t_max).contains(&intersect) {
-                    return Some(HitData::new(intersect, r, (r.at(intersect) - self.center) / self.radius));
+                    return Some(HitData::new(
+                        intersect,
+                        r,
+                        (r.at(intersect) - self.center) / self.radius,
+                    ));
                 }
             }
         }
