@@ -25,9 +25,9 @@ impl Vec3 {
     }
     pub fn to_pixel(&self) -> Rgb<u8> {
         Rgb::from([
-            (255.999 * self.x) as u8,
-            (255.999 * self.y) as u8,
-            (255.999 * self.z) as u8,
+            (255.999 * self.x.sqrt()) as u8,
+            (255.999 * self.y.sqrt()) as u8,
+            (255.999 * self.z.sqrt()) as u8,
         ])
     }
 }

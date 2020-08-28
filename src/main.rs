@@ -5,25 +5,42 @@ mod vec3;
 
 #[macro_use]
 extern crate auto_ops;
-use crate::hittable::{HittableList, Sphere};
-use ray::Ray;
-use vec3::Vec3;
 use crate::camera::Camera;
-use rand::random;
+use crate::hittable::{HittableList, Sphere};
+use rand::{random, Rng};
+use ray::Ray;
+use std::f64::consts::PI;
+use vec3::Vec3;
 
-fn ray_color(r: &Ray, world: &HittableList) -> Vec3 {
-    if let Some(hit_data) = world.hit(r, 0.0, f64::INFINITY) {
-        return 0.5 * (hit_data.normal + Vec3::new(1.0, 1.0, 1.0));
+fn ray_color(r: &Ray, world: &HittableList, depth: u32) -> Vec3 {
+    if depth == 0 {
+        return Vec3::new(0.0, 0.0, 0.0);
+    }
+    if let Some(hit_data) = world.hit(r, 0.001, f64::INFINITY) {
+        let target = hit_data.normal + hit_data.p + random_unit_vector();
+        return 0.5 * ray_color(&Ray::new(hit_data.p, target - hit_data.p), world, depth - 1);
     }
     let t = 0.5 * (r.direction.unit().y + 1.0);
     Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
+}
+
+fn rand_between(min: f64, max: f64) -> f64 {
+    let mut rng = rand::thread_rng();
+    rng.gen_range(min, max)
+}
+
+fn random_unit_vector() -> Vec3 {
+    let a = rand_between(0.0, 2.0 * PI);
+    let z = rand_between(-1.0, 1.0);
+    let r = (1.0 - z * z).sqrt();
+    Vec3::new(r * (a.cos()), r * (a.sin()), z)
 }
 
 fn main() -> std::io::Result<()> {
     // Image
 
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const WIDTH: u32 = 400;
+    const WIDTH: u32 = 1080;
     const HEIGHT: u32 = (WIDTH as f64 / ASPECT_RATIO) as u32;
     const SAMPLES_PER_PIXEL: u32 = 100;
 
@@ -47,9 +64,13 @@ fn main() -> std::io::Result<()> {
                 let v = (row as f64 + v_offset) / (HEIGHT - 1) as f64;
                 let u = (col as f64 + u_offset) / (WIDTH - 1) as f64;
                 let r = cam.ray(u, v);
-                pixel_color = pixel_color + ray_color(&r, &world);
+                pixel_color = pixel_color + ray_color(&r, &world, 50);
             }
-            out.put_pixel(col, HEIGHT - row - 1, (pixel_color / SAMPLES_PER_PIXEL as f64).to_pixel());
+            out.put_pixel(
+                col,
+                HEIGHT - row - 1,
+                (pixel_color / SAMPLES_PER_PIXEL as f64).to_pixel(),
+            );
         }
     }
     out.save("res.png");

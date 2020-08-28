@@ -3,18 +3,19 @@ use crate::vec3::{dot, Vec3};
 
 pub struct HitData {
     pub normal: Vec3,
+    pub p: Vec3,
     t: f64,
 }
 
 impl HitData {
-    fn new(t: f64, r: &Ray, outward_normal: Vec3) -> HitData {
+    fn new(t: f64, r: &Ray, p: Vec3, outward_normal: Vec3) -> HitData {
         let front_facing = dot(r.direction, outward_normal) < 0.0;
         let normal = if front_facing {
             outward_normal
         } else {
             -1.0 * outward_normal
         };
-        Self { normal, t }
+        Self { normal, p, t }
     }
 }
 
@@ -44,10 +45,12 @@ impl Hittable for Sphere {
             for difference in &[-root, root] {
                 let intersect = (-half_b + difference) / a;
                 if (t_min..t_max).contains(&intersect) {
+                    let p = r.at(intersect);
                     return Some(HitData::new(
                         intersect,
                         r,
-                        (r.at(intersect) - self.center) / self.radius,
+                        p,
+                        (p - self.center) / self.radius,
                     ));
                 }
             }
