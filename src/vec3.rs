@@ -1,6 +1,6 @@
+use image::Rgb;
 use std::fmt;
 use std::fmt::Formatter;
-use image::Rgb;
 
 #[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -11,7 +11,7 @@ pub struct Vec3 {
 
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
-        Self {x, y, z}
+        Self { x, y, z }
     }
 
     pub fn length_square(&self) -> f64 {
@@ -24,7 +24,11 @@ impl Vec3 {
         self / self.length()
     }
     pub fn to_pixel(&self) -> Rgb<u8> {
-        Rgb::from([(255.999 * self.x) as u8, (255.999 * self.y) as u8, (255.999 * self.z) as u8])
+        Rgb::from([
+            (255.999 * self.x) as u8,
+            (255.999 * self.y) as u8,
+            (255.999 * self.z) as u8,
+        ])
     }
 }
 
@@ -33,22 +37,32 @@ pub fn dot(u: Vec3, v: Vec3) -> f64 {
 }
 
 pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
-    Vec3::new(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x)
+    Vec3::new(
+        u.y * v.z - u.z * v.y,
+        u.z * v.x - u.x * v.z,
+        u.x * v.y - u.y * v.x,
+    )
 }
 
 impl_op_ex!(+ |a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x + b.x, a.y + b.y, a.z + b.z)});
-impl_op_ex!(- |a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x - b.x, a.y - b.y, a.z - b.z)});
-impl_op_ex!(* |a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x * b.x, a.y * b.y, a.z * b.z)});
+impl_op_ex!(-|a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x - b.x, a.y - b.y, a.z - b.z) });
+impl_op_ex!(*|a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x * b.x, a.y * b.y, a.z * b.z) });
 impl_op_ex!(/ |a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x / b.x, a.y / b.y, a.z / b.z)});
 
 impl_op_ex_commutative!(+ |a: &Vec3, b: f64| -> Vec3 { Vec3::new(a.x + b, a.y + b, a.z + b)});
-impl_op_ex_commutative!(- |a: &Vec3, b: f64| -> Vec3 { Vec3::new(a.x - b, a.y - b, a.z - b)});
-impl_op_ex_commutative!(* |a: &Vec3, b: f64| -> Vec3 { Vec3::new(a.x * b, a.y * b, a.z * b)});
+impl_op_ex_commutative!(-|a: &Vec3, b: f64| -> Vec3 { Vec3::new(a.x - b, a.y - b, a.z - b) });
+impl_op_ex_commutative!(*|a: &Vec3, b: f64| -> Vec3 { Vec3::new(a.x * b, a.y * b, a.z * b) });
 impl_op_ex_commutative!(/ |a: &Vec3, b: f64| -> Vec3 { Vec3::new(a.x / b, a.y / b, a.z / b)});
 
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {} {}", (255.999 * self.x) as i32, (255.999 * self.y) as i32, (255.999 * self.z) as i32)
+        write!(
+            f,
+            "{} {} {}",
+            (255.999 * self.x) as i32,
+            (255.999 * self.y) as i32,
+            (255.999 * self.z) as i32
+        )
     }
 }
 
@@ -58,7 +72,10 @@ mod tests {
 
     #[test]
     fn addition() {
-        assert_eq!(&Vec3::new(1.0, 2.0, 3.0) + &Vec3::new(4.0, 5.0, 6.0), Vec3::new(5.0, 7.0, 9.0));
+        assert_eq!(
+            &Vec3::new(1.0, 2.0, 3.0) + &Vec3::new(4.0, 5.0, 6.0),
+            Vec3::new(5.0, 7.0, 9.0)
+        );
     }
 
     #[test]
@@ -68,6 +85,9 @@ mod tests {
 
     #[test]
     fn test_cross() {
-        assert_eq!(cross(Vec3::new(2.0, 3.0, 4.0), Vec3::new(5.0, 6.0, 7.0)), Vec3::new(-3.0, 6.0, -3.0));
+        assert_eq!(
+            cross(Vec3::new(2.0, 3.0, 4.0), Vec3::new(5.0, 6.0, 7.0)),
+            Vec3::new(-3.0, 6.0, -3.0)
+        );
     }
 }
