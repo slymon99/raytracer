@@ -2,15 +2,25 @@ use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{dot, Vec3};
 
-pub struct HitData {
+pub enum Hittable<'a> {
+    Sphere(Sphere<'a>),
+}
+
+fn hit<'a>(r: &Ray, t_min: f64, t_max: f64, object: &'a Hittable) -> Option<HitData<'a>> {
+    match object {
+        Hittable::Sphere(s) => {s.hit(r, t_min, t_max)}
+    }
+}
+
+pub struct HitData<'a> {
     pub normal: Vec3,
     pub p: Vec3,
-    pub mat: Material,
+    pub mat: &'a Material,
     t: f64,
 }
 
-impl HitData {
-    fn new(t: f64, r: &Ray, p: Vec3, outward_normal: Vec3, mat: Material) -> HitData {
+impl<'a> HitData<'a> {
+    fn new(t: f64, r: Ray, p: Vec3, outward_normal: Vec3, mat: &'a Material) -> HitData {
         let front_facing = dot(r.direction, outward_normal) < 0.0;
         let normal = if front_facing {
             outward_normal
@@ -21,26 +31,20 @@ impl HitData {
     }
 }
 
-pub trait Hittable {
-    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitData>;
-}
-
-pub struct Sphere {
+pub struct Sphere<'a> {
     center: Vec3,
     radius: f64,
-    mat: Material,
+    mat: &'a Material,
 }
-impl Sphere {
-    pub fn new(center: Vec3, radius: f64, mat: Material) -> Self {
+
+impl<'a> Sphere<'a>{
+    pub fn new(center: Vec3, radius: f64, mat: &'a Material) -> Self {
         Self {
             center,
             radius,
             mat,
         }
     }
-}
-
-impl Hittable for Sphere {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitData> {
         let oc = r.origin - self.center;
         let a = r.direction.length_square();
@@ -55,7 +59,7 @@ impl Hittable for Sphere {
                     let p = r.at(intersect);
                     return Some(HitData::new(
                         intersect,
-                        r,
+                        r.clone(),
                         p,
                         (p - self.center) / self.radius,
                         self.mat,
@@ -67,17 +71,17 @@ impl Hittable for Sphere {
     }
 }
 
-pub struct HittableList {
-    objects: Vec<Box<dyn Hittable>>,
+pub struct HittableList<'a> {
+    objects: Vec<Hittable<'a>>,
 }
 
-impl HittableList {
+impl<'a> HittableList<'a> {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
         }
     }
-    pub fn add(&mut self, object: Box<dyn Hittable>) {
+    pub fn add(&mut self, object: Hittable<'a>) {
         self.objects.push(object);
     }
     pub fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitData> {
@@ -85,7 +89,7 @@ impl HittableList {
         let mut closest_so_far = t_max;
 
         for object in &self.objects {
-            if let Some(hit_data) = object.hit(r, t_min, closest_so_far) {
+            if let Some(hit_data) = hit(r, t_min, closest_so_far, object) {
                 closest_so_far = hit_data.t;
                 last_hit = Some(hit_data);
             }

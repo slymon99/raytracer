@@ -9,12 +9,12 @@ pub enum Material {
     Metal(Vec3),
 }
 
-pub struct ScatterData {
+pub struct ScatterData<'a> {
     pub scattered: Ray,
-    pub attenuation: Vec3,
+    pub attenuation: &'a Vec3,
 }
 
-pub fn scatter(r: &Ray, rec: &HitData) -> Option<ScatterData> {
+pub fn scatter<'a>(r: &Ray, rec: &'a HitData) -> Option<ScatterData<'a>> {
     match rec.mat {
         Material::Diffuse(albedo) => {
             let scatter_direction = rec.normal + random_unit_vector();

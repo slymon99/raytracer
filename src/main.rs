@@ -7,7 +7,7 @@ mod vec3;
 #[macro_use]
 extern crate auto_ops;
 use crate::camera::Camera;
-use crate::hittable::{HittableList, Sphere};
+use crate::hittable::{HittableList, Sphere, Hittable};
 use crate::material::{scatter, Material};
 use rand::{random, Rng};
 use ray::Ray;
@@ -44,25 +44,32 @@ fn main() -> std::io::Result<()> {
     // Image
 
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const WIDTH: u32 = 1080;
+    const WIDTH: u32 = 2560;
     const HEIGHT: u32 = (WIDTH as f64 / ASPECT_RATIO) as u32;
     const SAMPLES_PER_PIXEL: u32 = 100;
 
     // World
 
     let mut world = HittableList::new();
-    let metal_one = Material::Metal(Vec3::new(0.8, 0.4, 0.4));
+    let metal_one = Material::Metal(Vec3::new(0.3, 0.4, 0.6));
     let diffuse_red = Material::Diffuse(Vec3::new(0.7, 0.3, 0.3));
-    world.add(Box::new(Sphere::new(
+    let focus_sphere = Hittable::Sphere(Sphere::new(
         Vec3::new(0.0, 0.0, -1.0),
         0.5,
-        metal_one,
-    )));
-    world.add(Box::new(Sphere::new(
-        Vec3::new(0.0, -100.5, -1.0),
-        100.0,
-        diffuse_red,
-    )));
+        &metal_one));
+    let big_sphere = Hittable::Sphere(Sphere::new(
+            Vec3::new(0.0, -100.5, -1.0),
+            100.0,
+            &metal_one));
+    // world.add(focus_sphere);
+    world.add(big_sphere);
+
+    for idx in 0..5 {
+        let radius = 0.2;
+        world.add(Hittable::Sphere(Sphere::new(
+            Vec3::new((idx as f64 - 2.0) * 0.5, 0.0, -1.0), radius, &metal_one)
+        ));
+    }
 
     // Camera
     let cam = Camera::new();
