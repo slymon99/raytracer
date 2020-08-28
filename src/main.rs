@@ -46,29 +46,37 @@ fn main() -> std::io::Result<()> {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const WIDTH: u32 = 2560;
     const HEIGHT: u32 = (WIDTH as f64 / ASPECT_RATIO) as u32;
-    const SAMPLES_PER_PIXEL: u32 = 100;
+    const SAMPLES_PER_PIXEL: u32 = 50;
 
     // World
 
     let mut world = HittableList::new();
-    let metal_one = Material::Metal(Vec3::new(0.3, 0.4, 0.6));
-    let diffuse_red = Material::Diffuse(Vec3::new(0.7, 0.3, 0.3));
-    let focus_sphere = Hittable::Sphere(Sphere::new(
-        Vec3::new(0.0, 0.0, -1.0),
-        0.5,
+    let metal_one = Material::Metal(Vec3::new(0.7, 0.6, 0.5));
+    let diffuse_ground = Material::Diffuse(Vec3::new(0.3, 0.3, 0.3));
+    let diffuse_blue = Material::Diffuse(Vec3::new(0.3, 0.3, 0.7));
+    let left_sphere = Hittable::Sphere(Sphere::new(
+        Vec3::new(-1.5, 0.0, -2.6),
+        2.0,
+        &metal_one));
+    let right_sphere = Hittable::Sphere(Sphere::new(
+        Vec3::new(1.2, 0.0, -1.6),
+        0.7,
         &metal_one));
     let big_sphere = Hittable::Sphere(Sphere::new(
             Vec3::new(0.0, -100.5, -1.0),
             100.0,
-            &metal_one));
-    // world.add(focus_sphere);
+            &diffuse_ground));
+    world.add(left_sphere);
+    world.add(right_sphere);
     world.add(big_sphere);
 
-    for idx in 0..5 {
-        let radius = 0.2;
-        world.add(Hittable::Sphere(Sphere::new(
-            Vec3::new((idx as f64 - 2.0) * 0.5, 0.0, -1.0), radius, &metal_one)
-        ));
+    for row in 0..2 {
+        for idx in 0..5 {
+            let radius = 0.2;
+            world.add(Hittable::Sphere(Sphere::new(
+                Vec3::new((idx as f64 - 2.0) * 0.5, -0.3, -0.7 + row as f64), radius, &diffuse_blue)
+            ));
+        }
     }
 
     // Camera
