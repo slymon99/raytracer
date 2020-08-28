@@ -13,7 +13,6 @@ impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Self { x, y, z }
     }
-
     pub fn length_square(&self) -> f64 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
@@ -42,6 +41,10 @@ pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
         u.z * v.x - u.x * v.z,
         u.x * v.y - u.y * v.x,
     )
+}
+
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    v - 2.0 * dot(v, n) * n
 }
 
 impl_op_ex!(+ |a: &Vec3, b: &Vec3| -> Vec3 { Vec3::new(a.x + b.x, a.y + b.y, a.z + b.z)});

@@ -1,5 +1,6 @@
 mod camera;
 mod hittable;
+mod material;
 mod ray;
 mod vec3;
 
@@ -7,6 +8,7 @@ mod vec3;
 extern crate auto_ops;
 use crate::camera::Camera;
 use crate::hittable::{HittableList, Sphere};
+use crate::material::{scatter, Material};
 use rand::{random, Rng};
 use ray::Ray;
 use std::f64::consts::PI;
@@ -17,8 +19,10 @@ fn ray_color(r: &Ray, world: &HittableList, depth: u32) -> Vec3 {
         return Vec3::new(0.0, 0.0, 0.0);
     }
     if let Some(hit_data) = world.hit(r, 0.001, f64::INFINITY) {
-        let target = hit_data.normal + hit_data.p + random_unit_vector();
-        return 0.5 * ray_color(&Ray::new(hit_data.p, target - hit_data.p), world, depth - 1);
+        if let Some(scatter_data) = scatter(r, &hit_data) {
+            return scatter_data.attenuation * ray_color(&scatter_data.scattered, world, depth - 1);
+        }
+        return Vec3::new(0.0, 0.0, 0.0);
     }
     let t = 0.5 * (r.direction.unit().y + 1.0);
     Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
@@ -29,7 +33,7 @@ fn rand_between(min: f64, max: f64) -> f64 {
     rng.gen_range(min, max)
 }
 
-fn random_unit_vector() -> Vec3 {
+pub fn random_unit_vector() -> Vec3 {
     let a = rand_between(0.0, 2.0 * PI);
     let z = rand_between(-1.0, 1.0);
     let r = (1.0 - z * z).sqrt();
@@ -47,8 +51,18 @@ fn main() -> std::io::Result<()> {
     // World
 
     let mut world = HittableList::new();
-    world.add(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)));
-    world.add(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)));
+    let metal_one = Material::Metal(Vec3::new(0.8, 0.4, 0.4));
+    let diffuse_red = Material::Diffuse(Vec3::new(0.7, 0.3, 0.3));
+    world.add(Box::new(Sphere::new(
+        Vec3::new(0.0, 0.0, -1.0),
+        0.5,
+        metal_one,
+    )));
+    world.add(Box::new(Sphere::new(
+        Vec3::new(0.0, -100.5, -1.0),
+        100.0,
+        diffuse_red,
+    )));
 
     // Camera
     let cam = Camera::new();
